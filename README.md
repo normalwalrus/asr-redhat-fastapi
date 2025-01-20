@@ -47,3 +47,6 @@ TIMESTAMPS_FORMAT: Choose between 'seconds' or 'minutes' (defaults to 'seconds')
 ------------------------ FOR DENOISING/AMPLIFICATION -----------------------------------------
 DRY: Choose a floating point number from 0 to 1 (the closer the number is to 0, the stronger the denoiser)
 AMPLIFICATION_FACTOR: Choose a number to amplify the audio by (choose 1 to use the original audio)
+
+
+Add in the pretrained_models folder to get this to work
