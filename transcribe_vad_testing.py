@@ -7,8 +7,8 @@ import tracemalloc
 import requests
 
 SAMPLE_RATE = 16000
-SERVICE_URL = "http://localhost:8000/v1/transcribe_diarize_denoise_filepath"
-FILENAME = "steroids_120sec.wav"
+SERVICE_URL = "http://localhost:8001/v1/transcribe_diarize_filepath"
+FILENAME = "singlish_audio1.wav"
 DIRECTORY = "examples/"
 FILEPATH = DIRECTORY + FILENAME
 OUTPUT_DIRECTORY = "outputs/"

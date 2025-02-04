@@ -41,11 +41,12 @@ model = ASRModelForInference(
     timestamp_format=os.environ['TIMESTAMPS_FORMAT']
 )
 
-denoiser = DENOISER(
-    device=os.environ["DEVICE"],
-    dry=float(os.environ["DRY"]),
-    amplification_factor=float(os.environ["AMPLIFICATION_FACTOR"])
-)
+if int(os.environ['DENOISER']):
+    denoiser = DENOISER(
+        device=os.environ["DEVICE"],
+        dry=float(os.environ["DRY"]),
+        amplification_factor=float(os.environ["AMPLIFICATION_FACTOR"])
+    )
 
 class AudioData(BaseModel):
     array: list

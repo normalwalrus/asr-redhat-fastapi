@@ -1,3 +1,4 @@
 pretrained_models/*
 examples/obama_2004.wav
 env/*
+outputs/*

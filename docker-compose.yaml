@@ -1,7 +1,7 @@
 services:
   asr-service:
     container_name: asr-service
-    image: dinohub-asr/whisper-asr-fastapi-service:0.5.0
+    image: dinohub-asr/whisper-asr-fastapi-service:0.5.1
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,18 +17,19 @@ services:
               count: 1
               capabilities: [gpu]
     volumes:
-      - $PWD/asr_inference_service:/opt/app-root/asr_inference_service
-      - $PWD/pretrained_models:/opt/app-root/pretrained_models
-    #  - $PWD/examples:/opt/app-root/examples
+    #   - $PWD/asr_inference_service:/opt/app-root/asr_inference_service
+    #   - $PWD/pretrained_models:/opt/app-root/pretrained_models
+      - $PWD/trial:/opt/app-root/trial
     ports:
       - 8001:8080
     command:
-      [
-        "fastapi",
-        "run",
-        "asr_inference_service/main.py",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8080",
-      ]
+      ["bash"]
+      # [
+      #   "fastapi",
+      #   "run",
+      #   "asr_inference_service/main.py",
+      #   "--host",
+      #   "0.0.0.0",
+      #   "--port",
+      #   "8080",
+      # ]
