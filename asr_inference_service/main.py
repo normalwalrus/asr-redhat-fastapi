@@ -38,7 +38,9 @@ model = ASRModelForInference(
     diar_dir=os.environ['PRETRAINED_DIAR_MODEL_DIR'],
     sample_rate=int(os.environ["SAMPLE_RATE"]),
     device=os.environ["DEVICE"],
-    timestamp_format=os.environ['TIMESTAMPS_FORMAT']
+    timestamp_format=os.environ['TIMESTAMPS_FORMAT'],
+    min_segment_length=float(os.environ['MIN_SEGMENT_LENGTH']),
+    min_silence_length=float(os.environ['MIN_SILENCE_LENGTH'])
 )
 
 if int(os.environ['DENOISER']):

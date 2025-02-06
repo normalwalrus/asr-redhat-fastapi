@@ -81,8 +81,8 @@ USER 1001
 WORKDIR /opt/app-root
 
 # NOTE: Only uncomment when making the final .tar file
-ADD /pretrained_models /opt/app-root/pretrained_models
-ADD /asr_inference_service /opt/app-root/asr_inference_service
+# ADD /pretrained_models /opt/app-root/pretrained_models
+# ADD /asr_inference_service /opt/app-root/asr_inference_service
 
 # For RHEL/Centos 8+ scl_enable isn't sourced automatically in s2i-core
 # so virtualenv needs to be activated this way
@@ -92,4 +92,5 @@ ENV BASH_ENV="$VENV_PATH/bin/activate" \
 
 
 RUN ["python", "-c", "from nemo.collections.asr.models.msdd_models import NeuralDiarizer; NeuralDiarizer.from_pretrained('diar_msdd_telephonic')"]
+RUN ["python", "-c", "from pyannote.audio import Pipeline; Pipeline.from_pretrained('pyannote/speaker-diarization-3.1',use_auth_token='HF_TOKEN')"]
 RUN ["python", "-c", "from denoiser import pretrained; pretrained.dns64()"]

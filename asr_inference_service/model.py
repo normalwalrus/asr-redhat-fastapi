@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-from asr_inference_service.diarizer import NemoDiarizer
+from asr_inference_service.diarizer import NemoDiarizer, PyannoteDiarizer
 
 logging.basicConfig(
     format="%(levelname)s | %(asctime)s | %(message)s", level=logging.INFO
@@ -20,7 +20,13 @@ logging.getLogger('nemo_logger').setLevel(logging.ERROR)
 class ASRModelForInference:
     """Base class for ASR model for inference"""
 
-    def __init__(self, model_dir: str, diar_dir: str, sample_rate: int = 16000, device: str = 'cpu', timestamp_format: str = 'seconds'):
+    def __init__(self, model_dir: str,
+                 diar_dir: str,
+                 sample_rate: int = 16000,
+                 device: str = 'cpu',
+                 timestamp_format: str = 'seconds',
+                 min_segment_length = 0.5,
+                 min_silence_length = 0):
         """
         Inputs:
             model_dir (str): path to model directory
@@ -32,12 +38,16 @@ class ASRModelForInference:
         self.accelerator = 'gpu' if device == 'cuda' else 'cpu'
         self.diar_dir = diar_dir
         
-        self.init_model(model_dir, device)
+        self.init_model(model_dir, device, min_segment_length, min_silence_length)
         self.timestamp_format = timestamp_format if timestamp_format in ['minutes', 'seconds'] else 'seconds'
         logging.info("Running on device: %s", device)
         self.target_sr = sample_rate
 
-    def init_model(self, model_dir: str, device: str):
+    def init_model(self,
+                   model_dir: str,
+                   device: str,
+                   min_segment_length: float,
+                   min_silence_length: float):
         """Method to initialise model on class initialisation
 
         Inputs:
@@ -47,7 +57,10 @@ class ASRModelForInference:
         model_load_start = perf_counter()
         
         # Instantiating Diarizer
-        self.diar_model = NemoDiarizer(self.diar_dir, device=self.device_number, accelerator=self.accelerator)
+        # self.diar_model = NemoDiarizer(self.diar_dir, device=self.device_number, accelerator=self.accelerator)
+        self.diar_model = PyannoteDiarizer(device = device, 
+                                           min_segment_length=min_segment_length,
+                                           min_silence_length=min_silence_length)
 
         self.device = device
         self.torch_dtype = torch.float16 if self.device=='cuda' else torch.float32

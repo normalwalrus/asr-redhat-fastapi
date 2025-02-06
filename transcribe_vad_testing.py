@@ -8,7 +8,10 @@ import requests
 
 SAMPLE_RATE = 16000
 SERVICE_URL = "http://localhost:8001/v1/transcribe_diarize_filepath"
-FILENAME = "singlish_audio1.wav"
+# FILENAME = "GMT20250113-075636_Recording.wav"
+# DIRECTORY = "/home/digitalhub/Desktop/HR/"
+
+FILENAME = "steroids_120sec.wav"
 DIRECTORY = "examples/"
 FILEPATH = DIRECTORY + FILENAME
 OUTPUT_DIRECTORY = "outputs/"
@@ -18,6 +21,7 @@ def ping_container():
     try:
         audio_bytes = {"file": open(FILEPATH, "rb")}
         response = requests.post(SERVICE_URL, files=audio_bytes)
+        print(response)
         return response.status_code, response.text
     except requests.exceptions.RequestException as e:
         return None, str(e)

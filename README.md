@@ -44,6 +44,10 @@ SAMPLE_RATE: DO NOT CHANGE (should be 16000)
 DEVICE: Can choose between 'cpu' or 'cuda' (GPU), if not sure, can write any string to automatically choose based on your machine
 TIMESTAMPS_FORMAT: Choose between 'seconds' or 'minutes' (defaults to 'seconds')
 
+------------------------ FOR DIARIZATION -----------------------------------------
+MIN_SEGMENT_LENGTH: The minimum length of a speech segment to be considered as speech (Recommended = 0.5, set to 0 if all speech segments are to be considered)
+MIN_SILENCE_LENGTH: The minimum silence between 2 speech segments such that speech is split in the final result (Set to 9999999 if theres no need to split between same speaker)
+
 ------------------------ FOR DENOISING/AMPLIFICATION -----------------------------------------
 DENOISER: 1 (Active (NOTE: only enable with WIFI available)) or 0 (No Denoiser)
 DRY: Choose a floating point number from 0 to 1 (the closer the number is to 0, the stronger the denoiser)

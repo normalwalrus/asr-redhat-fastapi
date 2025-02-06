@@ -1,9 +1,12 @@
 import torch
 import torchaudio
 import logging
+import soundfile as sf
+
 from denoiser import pretrained
 from denoiser.dsp import convert_audio
-import soundfile as sf
+from time import perf_counter
+
 
 logging.basicConfig(
     format="%(levelname)s | %(asctime)s | %(message)s", level=logging.INFO
@@ -13,7 +16,10 @@ logging.basicConfig(
 class DENOISER:
     """Base class for denoising model"""
     
-    def __init__(self, device: str, dry: float, amplification_factor: float = 1) -> None:
+    def __init__(self, 
+                 device: str, 
+                 dry: float, 
+                 amplification_factor: float = 1) -> None:
         """Method to initialise denoiser class initialisation
 
         Inputs:
@@ -21,6 +27,8 @@ class DENOISER:
             dry (float): value from 1 to 0, with 0 being the strongest denoiser
             amplification_factor (float): used for amplifying the audio clip (choose 1 to let waveform be unchanged)
         """
+        logging.info("Denoiser loading... ")
+        denoiser_load_start = perf_counter()
         
         self.device = device if device in ['cuda', 'cpu'] else 'cuda' if torch.cuda.is_available() else 'cpu'
         
@@ -37,7 +45,10 @@ class DENOISER:
             self.dry,
         )
         
-        logging.info("Denoiser loaded")
+        denoiser_load_end = perf_counter()
+        logging.info(
+            "Denoiser loaded. Elapsed time: %s", denoiser_load_end - denoiser_load_start
+        )
         
     
     def denoise(self, input_audio_filepath: str):

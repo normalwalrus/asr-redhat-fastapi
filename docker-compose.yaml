@@ -17,19 +17,18 @@ services:
               count: 1
               capabilities: [gpu]
     volumes:
-    #   - $PWD/asr_inference_service:/opt/app-root/asr_inference_service
-    #   - $PWD/pretrained_models:/opt/app-root/pretrained_models
-      - $PWD/trial:/opt/app-root/trial
+      - $PWD/asr_inference_service:/opt/app-root/asr_inference_service
+      - $PWD/pretrained_models:/opt/app-root/pretrained_models
     ports:
       - 8001:8080
     command:
-      ["bash"]
-      # [
-      #   "fastapi",
-      #   "run",
-      #   "asr_inference_service/main.py",
-      #   "--host",
-      #   "0.0.0.0",
-      #   "--port",
-      #   "8080",
-      # ]
+      #["bash"]
+      [
+        "fastapi",
+        "run",
+        "asr_inference_service/main.py",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8080",
+      ]

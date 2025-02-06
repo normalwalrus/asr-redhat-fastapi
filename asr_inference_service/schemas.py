@@ -16,7 +16,7 @@ class ASRResponse(BaseModel):
     transcription: str
 
 class DenoiseResponse(BaseModel):
-    """ASR service response format
+    """Denoiser service response format
 
     Attributes:
         status_code (int): default success status code
