@@ -9,7 +9,7 @@ import pandas as pd
 logger_nemo = logging.getLogger('nemo_logger')
 logger_nemo.disabled = True
 
-class DiarInference:
+class NemoDiarizer:
     '''
     Diar inference class
     '''
@@ -41,7 +41,8 @@ class DiarInference:
             prev_speaker = cur_speaker
 
         return df
-    
+
+
 
 if __name__ == '__main__':
     
@@ -55,7 +56,7 @@ if __name__ == '__main__':
     model_name = 'diar_msdd_telephonic'
     path_to_example = 'example/steroids_120sec.wav'
     
-    diar_model = DiarInference(model_name, DEVICE, ACCELERATOR)
+    diar_model = NemoDiarizer(model_name, DEVICE, ACCELERATOR)
     df = diar_model.diarize(path_to_example)
     
     print(df)

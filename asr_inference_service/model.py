@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 
-from asr_inference_service.diarizer import DiarInference
+from asr_inference_service.diarizer import NemoDiarizer
 
 logging.basicConfig(
     format="%(levelname)s | %(asctime)s | %(message)s", level=logging.INFO
@@ -47,7 +47,7 @@ class ASRModelForInference:
         model_load_start = perf_counter()
         
         # Instantiating Diarizer
-        self.diar_model = DiarInference(self.diar_dir, device=self.device_number, accelerator=self.accelerator)
+        self.diar_model = NemoDiarizer(self.diar_dir, device=self.device_number, accelerator=self.accelerator)
 
         self.device = device
         self.torch_dtype = torch.float16 if self.device=='cuda' else torch.float32
