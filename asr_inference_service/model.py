@@ -189,7 +189,7 @@ class ASRModelForInference:
                 start_time = start_time/60
                 end_time = end_time/60
                 
-            segment_string = f"[{start_time:.2f} - {end_time:.2f}] [{segments['speaker'][x]}] : {transcription}\n"
+            segment_string = f"[{start_time:.2f} - {end_time:.2f}] [{segments['speaker'][x]}] : {transcription}\n\n"
             final_transcription = "".join([final_transcription, segment_string])
         
         return final_transcription

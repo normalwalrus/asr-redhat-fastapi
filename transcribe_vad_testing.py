@@ -7,12 +7,13 @@ import tracemalloc
 import requests
 
 SAMPLE_RATE = 16000
-SERVICE_URL = "http://localhost:8001/v1/transcribe_diarize_filepath"
-# FILENAME = "GMT20250113-075636_Recording.wav"
-# DIRECTORY = "/home/digitalhub/Desktop/HR/"
+SERVICE_URL = "http://localhost:8001/v1/transcribe_resample_diarize_filepath"
 
-FILENAME = "steroids_120sec.wav"
-DIRECTORY = "examples/"
+FILENAME = "GMT20250113-075636_Recording.wav"
+DIRECTORY = "/home/digitalhub/Desktop/HR/"
+
+# FILENAME = "singlish_audio1.wav"
+# DIRECTORY = "examples/"
 FILEPATH = DIRECTORY + FILENAME
 OUTPUT_DIRECTORY = "outputs/"
 

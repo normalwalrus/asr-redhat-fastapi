@@ -22,6 +22,7 @@ from starlette.status import HTTP_200_OK
 from asr_inference_service.model import ASRModelForInference
 from asr_inference_service.schemas import ASRResponse, HealthResponse, DenoiseResponse
 from asr_inference_service.denoise import DENOISER
+from asr_inference_service.audio_preprocessing import resample_audio_array
 
 SERVICE_HOST = "0.0.0.0"
 SERVICE_PORT = 8080
@@ -49,6 +50,8 @@ if int(os.environ['DENOISER']):
         dry=float(os.environ["DRY"]),
         amplification_factor=float(os.environ["AMPLIFICATION_FACTOR"])
     )
+    
+SAMPLE_RATE = int(os.environ["SAMPLE_RATE"])
 
 class AudioData(BaseModel):
     array: list
@@ -144,6 +147,25 @@ async def transcribe(file: UploadFile = File(...)):
     
         sf.write(temp_file_path, denoised, int(os.environ["SAMPLE_RATE"]))
         
+        transcription = model.diar_inference(temp_file_path)
+
+    return {"transcription": str(transcription)}
+
+@app.post("/v1/transcribe_resample_diarize_filepath", response_model=ASRResponse)
+async def transcribe(file: UploadFile = File(...)):
+    """Function call to takes in an audio file as bytes, saves it as a temp .wav file and executes model inference"""
+    if not file.filename.lower().endswith(".wav"):
+        raise HTTPException(status_code=400, detail="File uploaded is not a wav file.")
+    
+    audio_bytes = file.file.read()
+    data, samplerate = sf.read(io.BytesIO(audio_bytes))
+    
+    y = resample_audio_array(data, samplerate, SAMPLE_RATE)
+    
+    with tempfile.NamedTemporaryFile(delete=True, suffix=".wav") as temp_file:
+        
+        sf.write(temp_file, y, SAMPLE_RATE)
+        temp_file_path = temp_file.name
         transcription = model.diar_inference(temp_file_path)
 
     return {"transcription": str(transcription)}
