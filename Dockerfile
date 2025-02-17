@@ -52,12 +52,6 @@ COPY docker-scripts/ /usr/bin
 # install runtime deps - uses $POETRY_VIRTUALENVS_IN_PROJECT internally
 # --no-root is used to just install dependencies as development code will be mounted
 
-# Install libsndfile1 (linux soundfile package)
-# RUN apt-get clean \
-#     && apt-get update \ 
-#     && apt-get install -y gcc g++ libsndfile1 ffmpeg sox wget git \
-#     && rm -rf /var/lib/apt/lists/*
-
 RUN poetry install --no-root \
     && rm -rf $HOME/.cache/pypoetry/artifacts \
     && rm -rf $HOME/.cache/pypoetry/cache \
@@ -65,10 +59,10 @@ RUN poetry install --no-root \
     && fix-permissions ${APP_ROOT} -P \
     && rpm-file-permissions
 
-ARG NEMO_VERSION=1.23.0
-RUN python3 -m pip install --upgrade pip setuptools wheel && \
-    pip3 install --no-cache-dir Cython==0.29.35 && \
-    pip3 install --no-cache-dir nemo_toolkit[asr]==${NEMO_VERSION}
+# ARG NEMO_VERSION=1.23.0
+# RUN python3 -m pip install --upgrade pip setuptools wheel && \
+#     pip3 install --no-cache-dir Cython==0.29.35 && \
+#     pip3 install --no-cache-dir nemo_toolkit[asr]==${NEMO_VERSION}
 
 # The following echo adds the unset command for the variables set below to the \
 # venv activation script. This is inspired from scl_enable script and prevents \
@@ -89,8 +83,19 @@ WORKDIR /opt/app-root
 ENV BASH_ENV="$VENV_PATH/bin/activate" \
     ENV="$VENV_PATH/bin/activate" \
     PROMPT_COMMAND=". $VENV_PATH/bin/activate"
+    
+USER root
 
+# Just so fasterwhisper can work
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
+    && mv cuda-rhel9.repo /etc/yum.repos.d/ \
+    && yum clean all \
+    && yum update -y \
+    && yum install -y libcudnn8 libcudnn8-devel\
+    && yum clean all
 
-RUN ["python", "-c", "from nemo.collections.asr.models.msdd_models import NeuralDiarizer; NeuralDiarizer.from_pretrained('diar_msdd_telephonic')"]
+USER 1001
+
+#RUN ["python", "-c", "from nemo.collections.asr.models.msdd_models import NeuralDiarizer; NeuralDiarizer.from_pretrained('diar_msdd_telephonic')"]
 RUN ["python", "-c", "from pyannote.audio import Pipeline; Pipeline.from_pretrained('pyannote/speaker-diarization-3.1',use_auth_token='HF_TOKEN')"]
 RUN ["python", "-c", "from denoiser import pretrained; pretrained.dns64()"]

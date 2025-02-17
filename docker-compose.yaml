@@ -1,7 +1,7 @@
 services:
   asr-service:
     container_name: asr-service
-    image: dinohub-asr/whisper-asr-fastapi-service:0.5.1
+    image: dinohub-asr/whisper-asr-fastapi-service:0.5.2
     build:
       context: .
       dockerfile: Dockerfile

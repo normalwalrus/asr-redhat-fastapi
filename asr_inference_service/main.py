@@ -36,7 +36,6 @@ logging.getLogger('nemo_logger').setLevel(logging.ERROR)
 app = FastAPI()
 model = ASRModelForInference(
     model_dir=os.environ["PRETRAINED_MODEL_DIR"],
-    diar_dir=os.environ['PRETRAINED_DIAR_MODEL_DIR'],
     sample_rate=int(os.environ["SAMPLE_RATE"]),
     device=os.environ["DEVICE"],
     timestamp_format=os.environ['TIMESTAMPS_FORMAT'],
