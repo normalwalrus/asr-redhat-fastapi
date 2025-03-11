@@ -4,29 +4,34 @@ from time import perf_counter
 import librosa
 import numpy as np
 import torch
-from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
 from faster_whisper import WhisperModel
+from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+
 
 class WhisperASR:
     """Base class for ASR model for inference"""
 
-    def __init__(self, 
-                 model_dir: str,
-                 sample_rate: int = 16000,
-                 device: str = 'cpu',): 
+    def __init__(
+        self,
+        model_dir: str,
+        sample_rate: int = 16000,
+        device: str = "cpu",
+    ):
         """
         Inputs:
             model_dir (str): path to model directory
             sample_rate (int): the target sample rate in which the model accepts
         """
-        device = device if device in ['cuda', 'cpu'] else 'cuda' if torch.cuda.is_available() else 'cpu'
-        
+        device = (
+            device
+            if device in ["cuda", "cpu"]
+            else "cuda" if torch.cuda.is_available() else "cpu"
+        )
+
         self.init_model(model_dir, device)
         self.target_sr = sample_rate
-        
-    def init_model(self,
-                model_dir: str,
-                device: str):
+
+    def init_model(self, model_dir: str, device: str):
         """Method to initialise Whisper model on class initialisation
 
         Inputs:
@@ -36,9 +41,9 @@ class WhisperASR:
         model_load_start = perf_counter()
 
         self.device = device
-        self.torch_dtype = torch.float16 if self.device=='cuda' else torch.float32
+        self.torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
         logging.info("Torch dtype: %s", self.torch_dtype)
-        
+
         self.processor = AutoProcessor.from_pretrained(model_dir)
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(model_dir)
         self.model.to(device)
@@ -66,7 +71,7 @@ class WhisperASR:
         logging.info(
             "Models loaded. Elapsed time: %s", model_load_end - model_load_start
         )
-        
+
     def infer(self, waveform: np.ndarray, input_sr: int) -> str:
         """Method to run inference on a waveform to generate a transcription
 
@@ -83,7 +88,7 @@ class WhisperASR:
             waveform = librosa.resample(
                 waveform, orig_sr=input_sr, target_sr=self.target_sr
             )
-            
+
         if len(waveform.shape) == 2:
             logging.info("Converting Steoreo Waveform to Mono Waveform")
             waveform = waveform.mean(axis=1)
@@ -105,80 +110,86 @@ class WhisperASR:
         )
 
         return transcription["text"]
-    
+
 
 class FasterWhisperASR:
-        def __init__(self, 
-                 model_dir: str,
-                 sample_rate: int = 16000,
-                 device: str = 'cpu',): 
-            """
-            Inputs:
-                model_dir (str): path to model directory
-                sample_rate (int): the target sample rate in which the model accepts
-            """
-            device = device if device in ['cuda', 'cpu'] else 'cuda' if torch.cuda.is_available() else 'cpu'
-            
-            self.init_model(model_dir, device)
-            self.target_sr = sample_rate
-            
-        def init_model(self,
-                model_dir: str,
-                device: str):
-            
-            """Method to initialise Whisper model on class initialisation
+    '''
+    Class for FasterWhisper implementation
+    '''
+    def __init__(
+        self,
+        model_dir: str,
+        sample_rate: int = 16000,
+        device: str = "cpu",
+    ):
+        """
+        Inputs:
+            model_dir (str): path to model directory
+            sample_rate (int): the target sample rate in which the model accepts
+        """
+        device = (
+            device
+            if device in ["cuda", "cpu"]
+            else "cuda" if torch.cuda.is_available() else "cpu"
+        )
 
-            Inputs:
-                model_dir (str): path to model directory
-            """
-            logging.info("Loading Whisper ASR model...")
-            model_load_start = perf_counter()
+        self.init_model(model_dir, device)
+        self.target_sr = sample_rate
 
-            self.device = device
-            self.torch_dtype = torch.float16 if self.device=='cuda' else torch.float32
-            logging.info("Torch dtype: %s", self.torch_dtype)
-            
-            #self.processor = AutoProcessor.from_pretrained(model_dir)
-            self.model = WhisperModel(model_dir, device = self.device, compute_type="float16")
+    def init_model(self, model_dir: str, device: str):
+        """Method to initialise Whisper model on class initialisation
 
-            model_load_end = perf_counter()
-            logging.info(
-                "Models loaded. Elapsed time: %s", model_load_end - model_load_start
-            )
-            
-        def infer(self, waveform: np.ndarray, input_sr: int) -> str:
-            """Method to run inference on a waveform to generate a transcription
+        Inputs:
+            model_dir (str): path to model directory
+        """
+        logging.info("Loading Whisper ASR model...")
+        model_load_start = perf_counter()
 
-            Inputs:
-                waveform (np.ndarray): Takes in waveform of shape (T,)
-                input_sr (int): Sample rate of input waveform
+        self.device = device
+        self.torch_dtype = torch.float16 if self.device == "cuda" else torch.float32
+        logging.info("Torch dtype: %s", self.torch_dtype)
 
-            Returns:
-                transcription (str): Output text generated by the ASR model
-            """
-            inference_start = perf_counter()
+        # self.processor = AutoProcessor.from_pretrained(model_dir)
+        self.model = WhisperModel(model_dir, device=self.device, compute_type="float16")
 
-            if input_sr != self.target_sr:
-                waveform = librosa.resample(
-                    waveform, orig_sr=input_sr, target_sr=self.target_sr
-                )
-                
-            if len(waveform.shape) == 2:
-                logging.info("Converting Steoreo Waveform to Mono Waveform")
-                waveform = waveform.mean(axis=1)
-            
-            segments, _ = self.model.transcribe(waveform, language='en', vad_filter=False)
-            transcription = ''
+        model_load_end = perf_counter()
+        logging.info(
+            "Models loaded. Elapsed time: %s", model_load_end - model_load_start
+        )
 
-            for segment in segments:
-                transcription+=segment.text
-            
-            #transcription = list(segments['text'])
-                
-            inference_end = perf_counter()
-            logging.info(
-                "Inference Model triggered. Elapsed time: %s",
-                inference_end - inference_start,
+    def infer(self, waveform: np.ndarray, input_sr: int) -> str:
+        """Method to run inference on a waveform to generate a transcription
+
+        Inputs:
+            waveform (np.ndarray): Takes in waveform of shape (T,)
+            input_sr (int): Sample rate of input waveform
+
+        Returns:
+            transcription (str): Output text generated by the ASR model
+        """
+        inference_start = perf_counter()
+
+        if input_sr != self.target_sr:
+            waveform = librosa.resample(
+                waveform, orig_sr=input_sr, target_sr=self.target_sr
             )
 
-            return transcription
+        if len(waveform.shape) == 2:
+            logging.info("Converting Steoreo Waveform to Mono Waveform")
+            waveform = waveform.mean(axis=1)
+
+        segments, _ = self.model.transcribe(waveform, language="en", vad_filter=False)
+        transcription = ""
+
+        for segment in segments:
+            transcription += segment.text
+
+        # transcription = list(segments['text'])
+
+        inference_end = perf_counter()
+        logging.info(
+            "Inference Model triggered. Elapsed time: %s",
+            inference_end - inference_start,
+        )
+
+        return transcription

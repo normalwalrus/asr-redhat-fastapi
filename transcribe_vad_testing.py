@@ -13,8 +13,10 @@ SERVICE_URL = "http://localhost:8001/v1/transcribe_resample_diarize_filepath"
 # DIRECTORY = "/home/digitalhub/Desktop/ian_projects/HR/audio/"
 
 FILENAME = "steroids_120sec.wav"
-DIRECTORY = "examples/"
+DIRECTORY = "examples/wav/"
 FILEPATH = DIRECTORY + FILENAME
+
+#FILEPATH = "/home/digitalhub/Desktop/ian_projects/CIO-transcribe/redhat-diarizer-v5.0/examples/mp3/steroids_120sec.mp3"
 OUTPUT_DIRECTORY = "outputs/"
 
 

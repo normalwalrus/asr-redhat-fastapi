@@ -32,6 +32,8 @@ ENV APP_ROOT=/opt/app-root \
 # prepend venv to path
 ENV PATH="$VENV_PATH/bin:$PATH"
 
+COPY --from=mwader/static-ffmpeg:7.1.1 /ffmpeg /usr/local/bin/
+
 RUN chown -R 1001:0 $APP_ROOT \
     && python -m pip install --no-cache-dir --upgrade pip \
     && python -m pip install --no-cache-dir poetry==$POETRY_VERSION
@@ -83,18 +85,22 @@ WORKDIR /opt/app-root
 ENV BASH_ENV="$VENV_PATH/bin/activate" \
     ENV="$VENV_PATH/bin/activate" \
     PROMPT_COMMAND=". $VENV_PATH/bin/activate"
-    
-USER root
 
-# Just so fasterwhisper can work
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
-    && mv cuda-rhel9.repo /etc/yum.repos.d/ \
-    && yum clean all \
-    && yum update -y \
-    && yum install -y libcudnn8 libcudnn8-devel\
-    && yum clean all
+# Just so fasterwhisper can run
+# -------------------------------------------------------------------------------------------
+# USER root
 
-USER 1001
+# RUN wget https://developer.download.nvidia.com/compute/cuda/repos/rhel9/x86_64/cuda-rhel9.repo \
+#     && mv cuda-rhel9.repo /etc/yum.repos.d/ \
+#     && yum clean all \
+#     && yum update -y \
+#     && yum install -y libcudnn8 libcudnn8-devel\
+#     && yum clean all
+
+RUN ffmpeg -version
+
+# USER 1001
+# -------------------------------------------------------------------------------------------
 
 #RUN ["python", "-c", "from nemo.collections.asr.models.msdd_models import NeuralDiarizer; NeuralDiarizer.from_pretrained('diar_msdd_telephonic')"]
 RUN ["python", "-c", "from pyannote.audio import Pipeline; Pipeline.from_pretrained('pyannote/speaker-diarization-3.1',use_auth_token='HF_TOKEN')"]
